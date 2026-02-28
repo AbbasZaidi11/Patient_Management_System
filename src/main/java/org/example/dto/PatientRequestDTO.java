@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.example.dto.validators.CreatePatientValidationGroup;
 
 // the properties we expect to receive from the user of a patient
 public class PatientRequestDTO {
@@ -21,7 +22,8 @@ public class PatientRequestDTO {
     @NotBlank(message = "Date of birth is required")
     private String dateOfBirth;
 
-    @NotNull(message = "Registered date is required")
+    @NotNull(groups = CreatePatientValidationGroup.class,
+            message = "Registered date is required")
     private String registeredDate;
 
 

@@ -36,3 +36,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### PostgreSQL data (runtime database files - never commit these) ###
+postgres-data/
+
+### IntelliJ IDEA additional ###
+.idea/
