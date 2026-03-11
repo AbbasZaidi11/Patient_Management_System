@@ -1,0 +1,51 @@
+# The port this API Gateway app listens on.
+# All external traffic comes in here first.
+server:
+  port: 4004
+
+spring:
+  cloud:
+    gateway:
+      routes:
+
+        # -------------------------------------------------------
+        # ROUTE 1: Forward patient API calls to patient-service
+        # -------------------------------------------------------
+        - id: patient-service-route
+
+          # Where to forward the request.
+          # 'patient-service' is the Docker service name (internal DNS).
+          uri: http://patient-service:4000
+
+          # Condition: only requests matching this path hit this route.
+          predicates:
+            - Path=/api/patients/**
+
+          # StripPrefix=1 removes the first path segment before forwarding.
+          # /api/patients/123  ->  /patients/123
+          filters:
+            - StripPrefix=1
+
+          # Request flow:
+          #   Client calls  : http://localhost:4004/api/patients
+          #   Gateway sends : http://patient-service:4000/patients
+
+        # -------------------------------------------------------
+        # ROUTE 2: Expose patient-service Swagger docs via gateway
+        # -------------------------------------------------------
+        - id: api-docs-patient-route
+
+          uri: http://patient-service:4000
+
+          # Condition: only the exact path /api-docs/patients matches.
+          predicates:
+            - Path=/api-docs/patients
+
+          # RewritePath completely replaces the path before forwarding.
+          # /api-docs/patients  ->  /v3/api-docs
+          filters:
+            - RewritePath=/api-docs/patients, /v3/api-docs
+
+          # Request flow:
+          #   Client calls  : http://localhost:4004/api-docs/patients
+          #   Gateway sends : http://patient-service:4000/v3/api-docs

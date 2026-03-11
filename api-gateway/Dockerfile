@@ -30,7 +30,7 @@ WORKDIR /app
 # WHY all of them?
 #   The parent pom.xml lists every module. Maven reads it and
 #   expects every module's pom.xml to exist, even when only
-#   building one module (-pl patient-service). Without them
+#   building one module (-pl api-gateway). Without them
 #   Maven exits with an error.
 #
 # WHY poms before source?
@@ -38,25 +38,25 @@ WORKDIR /app
 #   change (no pom change), Docker reuses the cached
 #   dependency-download layer and skips the slow download.
 COPY pom.xml .
-COPY patient-service/pom.xml  ./patient-service/pom.xml
-COPY api-gateway/pom.xml      ./api-gateway/pom.xml
+COPY api-gateway/pom.xml       ./api-gateway/pom.xml
+COPY patient-service/pom.xml   ./patient-service/pom.xml
 COPY analytics-service/pom.xml ./analytics-service/pom.xml
-COPY billing-service/pom.xml  ./billing-service/pom.xml
+COPY billing-service/pom.xml   ./billing-service/pom.xml
 
-# Download all dependencies for patient-service into the
+# Download all dependencies for api-gateway into the
 # local Maven cache inside this image layer.
-# -pl patient-service = only resolve this module's dependencies.
-# -B                  = non-interactive mode for cleaner logs.
-RUN mvn dependency:go-offline -pl patient-service -B
+# -pl api-gateway = only resolve this module's dependencies.
+# -B              = non-interactive mode for cleaner logs.
+RUN mvn dependency:go-offline -pl api-gateway -B
 
 # NOW copy the source code. Intentionally done after the
 # dependency download so changing source files doesn't bust
 # the expensive download cache layer above.
-COPY patient-service/src ./patient-service/src
+COPY api-gateway/src ./api-gateway/src
 
 # Compile and package into a fat JAR.
 # -DskipTests = don't run unit tests during Docker build.
-RUN mvn -pl patient-service clean package -DskipTests
+RUN mvn -pl api-gateway clean package -DskipTests
 
 # -------------------------------------------------------
 # STAGE 2 — RUNTIME
@@ -68,11 +68,11 @@ WORKDIR /app
 
 # Pull ONLY the compiled JAR out of the builder stage.
 # Nothing else (source code, Maven cache) ends up in this image.
-COPY --from=builder /app/patient-service/target/patient-service-0.0.1-SNAPSHOT.jar ./app.jar
+COPY --from=builder /app/api-gateway/target/api-gateway-1.0-SNAPSHOT.jar ./app.jar
 
-# Document that this service listens on port 4000.
+# Document that the gateway listens on port 4004.
 # (The actual port mapping is done in docker-compose.yml)
-EXPOSE 4000
+EXPOSE 4004
 
 # Command that runs when the container starts.
 ENTRYPOINT ["java", "-jar", "app.jar"]
