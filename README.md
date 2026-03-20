@@ -1,4 +1,4 @@
-# PatientManagementSystem
+# MediCore
 
 A healthcare backend built around a microservices architecture — five services communicating via REST, gRPC, and Kafka, wired together with Docker Compose for local dev and AWS CDK for cloud deployment.
 
@@ -159,15 +159,3 @@ PatientManagementSystem/
 - **LocalStack** — local AWS emulation for CDK testing
 - **Docker Compose** — single-command local environment
 - **JUnit 5 + REST-Assured** — integration test coverage
-
----
-
-## What's Next
-
-- Cloud Map DNS for inter-service addressing (replacing `host.docker.internal`)
-- DB credentials via SSM Parameter Store
-- Circuit breakers (Resilience4j)
-- Distributed tracing (OpenTelemetry)
-- Prometheus + Grafana metrics
-- Flyway for schema migrations
-- Kubernetes manifests
